@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/boba-2026/',
+  base: './',
   plugins: [react()],
   server: {
     proxy: {
