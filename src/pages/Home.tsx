@@ -9,6 +9,13 @@ export default function Home() {
       </div>
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
+          to="/docs"
+          className="px-8 py-4 border-2 border-intuit-gray-300 text-intuit-gray-700 font-medium rounded-lg hover:bg-intuit-gray-100 transition-colors flex items-center justify-center gap-2"
+        >
+          <span>📄</span> Download documentation
+        </Link>
+
+        <Link
           to="/pro"
           className="px-8 py-4 bg-intuit-blue text-white font-medium rounded-lg hover:bg-intuit-blue-dark transition-colors"
         >

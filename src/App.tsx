@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 
 // Home
 import Home from './pages/Home'
+import Documentation from './pages/Documentation'
 
 // Pro Portal
 import ProSignIn from './pages/pro/SignIn'
@@ -25,6 +26,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/docs" element={<Documentation />} />
       {/* Pro Portal */}
       <Route path="/pro" element={<ProSignIn />} />
       <Route path="/pro/dashboard" element={<ProDashboard />} />
