@@ -17,7 +17,7 @@ export default function ClientConsent() {
   const handleConsent = (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitted('consent')
-    setTimeout(() => navigate('/client/landing'), 1500)
+    setTimeout(() => navigate(clientId ? `/client/start/${clientId}` : '/client/start'), 1500)
   }
 
   const handleDecline = (e: React.FormEvent) => {
@@ -37,7 +37,7 @@ export default function ClientConsent() {
             You're all set. Continue to get started with TurboTax Full Service.
           </p>
           <Link
-            to="/client/landing"
+            to={clientId ? `/client/start/${clientId}` : '/client/start'}
             className="inline-block px-6 py-2.5 bg-intuit-blue text-white font-medium rounded-md hover:bg-intuit-blue-dark"
           >
             Continue
@@ -100,6 +100,7 @@ export default function ClientConsent() {
         </div>
 
         {mode === 'consent' ? (
+          <>
           <form onSubmit={handleConsent} className="bg-white rounded-lg border border-intuit-gray-200 p-6">
             <div className="mb-4 h-32 overflow-y-auto border border-intuit-gray-200 rounded p-4 bg-intuit-gray-50 text-sm text-intuit-gray-700">
               <p className="mb-2">
@@ -159,6 +160,19 @@ export default function ClientConsent() {
               Submit consent
             </button>
           </form>
+
+          <div className="mt-6 p-4 bg-intuit-gray-50 rounded-lg border border-intuit-gray-100">
+            <p className="text-sm font-medium text-intuit-gray-700 mb-3">What you get with TurboTax Full Service</p>
+            <ul className="text-sm text-intuit-gray-600 space-y-2">
+              <li>• Quick experience — your expert prepares, signs, and files your return</li>
+              <li>• Accuracy guaranteed — Full Service Guarantee backs your return</li>
+              <li>• Meet in person or online — choose what works for you</li>
+              <li>• Easy collaboration with your expert — upload documents, message, or video call</li>
+              <li>• 24/7 support when you need it</li>
+              <li>• Maximum refund guarantee</li>
+            </ul>
+          </div>
+          </>
         ) : (
           <form onSubmit={handleDecline} className="bg-white rounded-lg border border-intuit-gray-200 p-6">
             <p className="text-intuit-gray-600 mb-4">

@@ -24,7 +24,7 @@ export default function Home() {
       <p className="mt-8 text-sm text-intuit-gray-500 max-w-md text-center">
         Pro Portal: Sign in → Dashboard → Agreement → Business Info → Upload → Client List → Send → Tracker
         <br />
-        Client: Email → Consent → Landing → Account → Upload → Match
+        Client: Email → Consent → Start experience → Create account → Expert match → Upload docs
       </p>
     </div>
   )

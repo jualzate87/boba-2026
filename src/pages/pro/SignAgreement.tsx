@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ProHeader from '../../components/ProHeader'
+import { PRO_DEMO_USER_KEY } from '../../data/sampleData'
 
 const TERMS = `
 BOOK OF BUSINESS ACQUISITION AGREEMENT
@@ -26,13 +27,45 @@ The Professional represents that they have the authority to enter into this Agre
 This Agreement is effective upon signing and continues until the transition is complete or as otherwise terminated in accordance with its terms.
 `.trim()
 
+function getIsNewUser(location: ReturnType<typeof useLocation>): boolean {
+  const fromState = location.state as { isNewUser?: boolean } | null
+  if (typeof fromState?.isNewUser === 'boolean') return fromState.isNewUser
+  return sessionStorage.getItem(PRO_DEMO_USER_KEY) !== 'existing'
+}
+
 export default function ProSignAgreement() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const isNewUser = getIsNewUser(location)
   const [agreed, setAgreed] = useState(false)
 
   const handleSign = (e: React.FormEvent) => {
     e.preventDefault()
-    if (agreed) navigate('/pro/business')
+    if (agreed) navigate('/pro/business', { state: { isNewUser } })
+  }
+
+  if (!isNewUser) {
+    return (
+      <div className="min-h-screen bg-intuit-gray-50">
+        <ProHeader />
+        <main className="max-w-3xl mx-auto px-6 py-8">
+          <h1 className="text-2xl font-semibold text-intuit-gray-800 mb-6">View signed contract</h1>
+          <div className="bg-white rounded-lg border border-intuit-gray-200 p-6">
+            <div className="h-64 overflow-y-auto border border-intuit-gray-200 rounded p-4 mb-6 bg-intuit-gray-50">
+              <pre className="text-sm text-intuit-gray-700 whitespace-pre-wrap font-sans">{TERMS}</pre>
+            </div>
+            <p className="text-sm text-green-700 font-medium mb-4">✓ Signed on March 15, 2026</p>
+            <Link
+              to="/pro/dashboard"
+              state={{ isNewUser: false }}
+              className="inline-block px-6 py-2.5 border border-intuit-gray-300 text-intuit-gray-700 rounded-md hover:bg-intuit-gray-50"
+            >
+              Back to dashboard
+            </Link>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -71,6 +104,7 @@ export default function ProSignAgreement() {
           <div className="flex gap-4">
             <Link
               to="/pro/dashboard"
+              state={{ isNewUser: true }}
               className="px-6 py-2.5 border border-intuit-gray-300 text-intuit-gray-700 rounded-md hover:bg-intuit-gray-50"
             >
               Back

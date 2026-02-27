@@ -12,10 +12,12 @@ import ProUploadClients from './pages/pro/UploadClients'
 import ProClientList from './pages/pro/ClientList'
 import ProSendCommunication from './pages/pro/SendCommunication'
 import ProClientTracker from './pages/pro/ClientTracker'
+import ProClientNewsletter from './pages/pro/ClientNewsletter'
 
 // Client flow
 import ClientEmail from './pages/client/Email'
 import ClientConsent from './pages/client/Consent'
+import ClientStartExperience from './pages/client/StartExperience'
 import ClientLanding from './pages/client/Landing'
 import ClientAccount from './pages/client/Account'
 
@@ -32,11 +34,13 @@ function App() {
       <Route path="/pro/clients" element={<ProClientList />} />
       <Route path="/pro/send" element={<ProSendCommunication />} />
       <Route path="/pro/tracker" element={<ProClientTracker />} />
+      <Route path="/pro/newsletter" element={<ProClientNewsletter />} />
       {/* Client flow */}
       <Route path="/client/email" element={<ClientEmail />} />
       <Route path="/client/consent/:clientId?" element={<ClientConsent />} />
+      <Route path="/client/start/:clientId?" element={<ClientStartExperience />} />
       <Route path="/client/landing" element={<ClientLanding />} />
-      <Route path="/client/account" element={<ClientAccount />} />
+      <Route path="/client/account/:clientId?" element={<ClientAccount />} />
     </Routes>
   )
 }

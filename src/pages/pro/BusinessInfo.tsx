@@ -1,10 +1,18 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ProHeader from '../../components/ProHeader'
-import { FIRM } from '../../data/sampleData'
+import { FIRM, PRO_DEMO_USER_KEY } from '../../data/sampleData'
+
+function getIsNewUser(location: ReturnType<typeof useLocation>): boolean {
+  const fromState = location.state as { isNewUser?: boolean } | null
+  if (typeof fromState?.isNewUser === 'boolean') return fromState.isNewUser
+  return sessionStorage.getItem(PRO_DEMO_USER_KEY) !== 'existing'
+}
 
 export default function ProBusinessInfo() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const isNewUser = getIsNewUser(location)
   const [form, setForm] = useState({
     legalName: FIRM.name,
     dba: FIRM.dba,
@@ -21,10 +29,64 @@ export default function ProBusinessInfo() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    navigate('/pro/upload')
+    navigate('/pro/upload', { state: { isNewUser } })
   }
 
   const update = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }))
+
+  if (!isNewUser) {
+    return (
+      <div className="min-h-screen bg-intuit-gray-50">
+        <ProHeader />
+        <main className="max-w-2xl mx-auto px-6 py-8">
+          <h1 className="text-2xl font-semibold text-intuit-gray-800 mb-6">Your profile</h1>
+          <div className="bg-white rounded-lg border border-intuit-gray-200 p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Legal Business Name</label>
+              <p className="text-intuit-gray-800">{form.legalName}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Doing Business As (DBA)</label>
+              <p className="text-intuit-gray-800">{form.dba}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Employer Identification Number (EIN)</label>
+              <p className="text-intuit-gray-800">{form.ein}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Business Address</label>
+              <p className="text-intuit-gray-800">{form.address}, {form.city}, {form.state} {form.zip}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Business Type</label>
+              <p className="text-intuit-gray-800">{form.businessType}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Number of clients</label>
+                <p className="text-intuit-gray-800">100</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Years in business</label>
+                <p className="text-intuit-gray-800">{form.yearsInBusiness}</p>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Tax software used</label>
+              <p className="text-intuit-gray-800">{form.taxSoftware}</p>
+            </div>
+            <Link
+              to="/pro/dashboard"
+              state={{ isNewUser: false }}
+              className="inline-block mt-4 px-6 py-2.5 border border-intuit-gray-300 text-intuit-gray-700 rounded-md hover:bg-intuit-gray-50"
+            >
+              Back to dashboard
+            </Link>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-intuit-gray-50">
