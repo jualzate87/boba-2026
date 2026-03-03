@@ -5,6 +5,8 @@ export default defineConfig({
   base: '/boba-2026/',
   plugins: [react()],
   server: {
+    port: 5180,
+    strictPort: false,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

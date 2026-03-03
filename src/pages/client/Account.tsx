@@ -25,6 +25,8 @@ export default function ClientAccount() {
   const [expertChoice, setExpertChoice] = useState<'accept' | 'other' | null>(null)
   const [localDocuments, setLocalDocuments] = useState<DocumentUpload[]>([])
   const [questionnaireCompleted, setQuestionnaireCompleted] = useState(false)
+  const [questionnaireStep, setQuestionnaireStep] = useState(0)
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, string>>({})
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,6 +50,34 @@ export default function ClientAccount() {
     setExpertChoice('other')
     setStep('matched')
   }
+
+  const TAX_QUESTIONNAIRE = [
+    {
+      id: 'returnType',
+      question: 'What type of tax return do you expect to file?',
+      options: ['Form 1040 (Individual)', 'Form 1040-NR (Nonresident alien)', 'Form 1040-SR (Senior)', 'Not sure'],
+    },
+    {
+      id: 'incomeTypes',
+      question: 'Which income types apply to you?',
+      options: ['W-2 wages only', 'W-2 + 1099 freelance/contract', 'Self-employment (Schedule C)', 'Rental income', 'Investment income (interest, dividends)', 'Retirement (401k, IRA, pension)', 'Social Security', 'Multiple of the above'],
+    },
+    {
+      id: 'deductions',
+      question: 'How do you usually claim deductions?',
+      options: ['Standard deduction', 'Itemized deductions (mortgage, charity, etc.)', 'Not sure'],
+    },
+    {
+      id: 'lifeChanges',
+      question: 'Did you have any major life changes in the past year?',
+      options: ['Married or divorced', 'Bought or sold a home', 'Started or sold a business', 'Retired', 'None of these'],
+    },
+    {
+      id: 'foreign',
+      question: 'Do you have any foreign income, accounts, or assets over $10,000?',
+      options: ['Yes', 'No'],
+    },
+  ]
 
   const handleSimulateUpload = () => {
     setLocalDocuments((prev) => [
@@ -210,14 +240,66 @@ export default function ClientAccount() {
                     <p className="text-sm font-medium text-green-800">Questionnaire completed</p>
                     <p className="text-sm text-green-700 mt-1">We've captured your tax situation.</p>
                   </div>
-                ) : (
+                ) : questionnaireStep === 0 ? (
                   <button
                     type="button"
-                    onClick={() => setQuestionnaireCompleted(true)}
+                    onClick={() => setQuestionnaireStep(1)}
                     className="px-4 py-2 border border-intuit-gray-300 text-intuit-gray-700 rounded-lg hover:bg-intuit-gray-50 font-medium text-sm"
                   >
                     Start questionnaire
                   </button>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-sm font-medium text-intuit-gray-800">
+                      {questionnaireStep} of {TAX_QUESTIONNAIRE.length}. {TAX_QUESTIONNAIRE[questionnaireStep - 1].question}
+                    </p>
+                    <div className="space-y-2">
+                      {TAX_QUESTIONNAIRE[questionnaireStep - 1].options.map((opt) => (
+                        <label key={opt} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-intuit-gray-50">
+                          <input
+                            type="radio"
+                            name={`q-${TAX_QUESTIONNAIRE[questionnaireStep - 1].id}`}
+                            value={opt}
+                            checked={questionnaireAnswers[TAX_QUESTIONNAIRE[questionnaireStep - 1].id] === opt}
+                            onChange={() =>
+                              setQuestionnaireAnswers((prev) => ({
+                                ...prev,
+                                [TAX_QUESTIONNAIRE[questionnaireStep - 1].id]: opt,
+                              }))
+                            }
+                            className="rounded-full border-intuit-gray-300"
+                          />
+                          <span className="text-sm text-intuit-gray-700">{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      {questionnaireStep > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setQuestionnaireStep((s) => s - 1)}
+                          className="px-4 py-2 border border-intuit-gray-300 text-intuit-gray-700 rounded-lg hover:bg-intuit-gray-50 font-medium text-sm"
+                        >
+                          Back
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (questionnaireStep === TAX_QUESTIONNAIRE.length) {
+                            setQuestionnaireCompleted(true)
+                            setQuestionnaireStep(0)
+                          } else {
+                            setQuestionnaireStep((s) => s + 1)
+                          }
+                        }}
+                        disabled={!questionnaireAnswers[TAX_QUESTIONNAIRE[questionnaireStep - 1].id]}
+                        className="px-4 py-2 bg-intuit-blue text-white rounded-lg hover:bg-intuit-blue-dark font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {questionnaireStep === TAX_QUESTIONNAIRE.length ? 'Complete' : 'Next'}
+                      </button>
+                    </div>
+                  </div>
                 )}
               </section>
             )}
