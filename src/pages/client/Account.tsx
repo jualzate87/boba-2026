@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
+import type { DocumentUpload } from '../../data/sampleData'
 import {
   CLIENTS,
   RECOMMENDED_EXPERT,
@@ -7,7 +8,6 @@ import {
   CLIENT_PRICE_OFFER_REASON,
   CLIENT_OFFER_URGENCY,
   PRO,
-  CLIENT_DOCUMENTS,
 } from '../../data/sampleData'
 
 export default function ClientAccount() {
@@ -23,6 +23,8 @@ export default function ClientAccount() {
   const [password, setPassword] = useState('')
   const [requestProUpload, setRequestProUpload] = useState(false)
   const [expertChoice, setExpertChoice] = useState<'accept' | 'other' | null>(null)
+  const [localDocuments, setLocalDocuments] = useState<DocumentUpload[]>([])
+  const [questionnaireCompleted, setQuestionnaireCompleted] = useState(false)
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,7 +49,17 @@ export default function ClientAccount() {
     setStep('matched')
   }
 
-  const documents = clientId ? CLIENT_DOCUMENTS.filter((d) => d.clientId === clientId) : []
+  const handleSimulateUpload = () => {
+    setLocalDocuments((prev) => [
+      ...prev,
+      {
+        clientId: clientId || '',
+        fileName: '1040_2024.pdf',
+        uploadedBy: 'client',
+        uploadedAt: new Date().toISOString().split('T')[0],
+      },
+    ])
+  }
 
   // Serviceability analysis step
   if (step === 'serviceability') {
@@ -146,7 +158,7 @@ export default function ClientAccount() {
 
   // Prior year documents step — flexible: questions + upload + request pro all visible
   if (step === 'documents') {
-    const hasUploadedReturn = documents.some((d) => d.fileName.includes('1040'))
+    const hasUploadedReturn = localDocuments.some((d) => d.fileName.includes('1040'))
     return (
       <div className="min-h-screen bg-intuit-gray-50">
         <header className="bg-white border-b border-intuit-gray-200 px-6 py-4">
@@ -161,11 +173,11 @@ export default function ClientAccount() {
             To serve you well and match you with the right expert, we need to understand your tax situation. Use any option below — upload a prior year return to bypass questions, answer a short questionnaire, or ask your tax pro to submit for you.
           </p>
 
-          {documents.length > 0 && (
+          {localDocuments.length > 0 && (
             <div className="mb-8 p-4 bg-green-50 rounded-lg border border-green-200">
               <p className="text-sm font-medium text-green-800 mb-2">Documents submitted</p>
               <ul className="text-sm text-green-700 space-y-1">
-                {documents.map((d, i) => (
+                {localDocuments.map((d, i) => (
                   <li key={i}>
                     {d.fileName} — uploaded by {d.uploadedBy === 'client' ? 'you' : PRO.name}
                   </li>
@@ -181,7 +193,7 @@ export default function ClientAccount() {
             <section className="p-6 rounded-xl border-2 border-intuit-gray-200 bg-white">
               <h3 className="font-semibold text-intuit-gray-800 mb-2">Upload your prior year return</h3>
               <div
-                onClick={handleDocumentsNext}
+                onClick={handleSimulateUpload}
                 className="border-2 border-dashed border-intuit-gray-300 rounded-lg p-8 text-center hover:border-intuit-blue/50 cursor-pointer transition-colors"
               >
                 <p className="text-intuit-gray-600">Drag and drop your prior year 1040 (PDF or JPEG). Max 10MB.</p>
@@ -193,13 +205,20 @@ export default function ClientAccount() {
               <section className="p-6 rounded-xl border-2 border-intuit-gray-200 bg-white">
                 <h3 className="font-semibold text-intuit-gray-800 mb-2">Answer questions about your tax situation</h3>
                 <p className="text-sm text-intuit-gray-600 mb-4">A short questionnaire. Takes about 5 minutes.</p>
-                <button
-                  type="button"
-                  onClick={handleDocumentsNext}
-                  className="px-4 py-2 border border-intuit-gray-300 text-intuit-gray-700 rounded-lg hover:bg-intuit-gray-50 font-medium text-sm"
-                >
-                  Start questionnaire
-                </button>
+                {questionnaireCompleted ? (
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-sm font-medium text-green-800">Questionnaire completed</p>
+                    <p className="text-sm text-green-700 mt-1">We've captured your tax situation.</p>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setQuestionnaireCompleted(true)}
+                    className="px-4 py-2 border border-intuit-gray-300 text-intuit-gray-700 rounded-lg hover:bg-intuit-gray-50 font-medium text-sm"
+                  >
+                    Start questionnaire
+                  </button>
+                )}
               </section>
             )}
 
@@ -222,6 +241,9 @@ export default function ClientAccount() {
               <p className="mt-2 text-xs text-intuit-gray-500">
                 Your tax pro will see your request and can add documents for you.
               </p>
+              {requestProUpload && (
+                <p className="mt-2 text-sm font-medium text-green-700">Request sent to {PRO.name}.</p>
+              )}
             </section>
           </div>
 
