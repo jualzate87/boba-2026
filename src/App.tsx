@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import AppLayout from './components/AppLayout'
 
 // Home
 import Home from './pages/Home'
@@ -14,6 +15,7 @@ import ProClientList from './pages/pro/ClientList'
 import ProSendCommunication from './pages/pro/SendCommunication'
 import ProClientTracker from './pages/pro/ClientTracker'
 import ProClientNewsletter from './pages/pro/ClientNewsletter'
+import ProClientProfile from './pages/pro/ClientProfile'
 
 // Client flow
 import ClientEmail from './pages/client/Email'
@@ -21,10 +23,12 @@ import ClientConsent from './pages/client/Consent'
 import ClientStartExperience from './pages/client/StartExperience'
 import ClientLanding from './pages/client/Landing'
 import ClientAccount from './pages/client/Account'
+import ClientProfile from './pages/client/Profile'
 
 function App() {
   return (
     <Routes>
+      <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
       <Route path="/docs" element={<Documentation />} />
       {/* Pro Portal */}
@@ -36,6 +40,7 @@ function App() {
       <Route path="/pro/clients" element={<ProClientList />} />
       <Route path="/pro/send" element={<ProSendCommunication />} />
       <Route path="/pro/tracker" element={<ProClientTracker />} />
+      <Route path="/pro/client/:clientId" element={<ProClientProfile />} />
       <Route path="/pro/newsletter" element={<ProClientNewsletter />} />
       {/* Client flow */}
       <Route path="/client/email" element={<ClientEmail />} />
@@ -43,6 +48,8 @@ function App() {
       <Route path="/client/start/:clientId?" element={<ClientStartExperience />} />
       <Route path="/client/landing" element={<ClientLanding />} />
       <Route path="/client/account/:clientId?" element={<ClientAccount />} />
+      <Route path="/client/profile/:clientId?" element={<ClientProfile />} />
+      </Route>
     </Routes>
   )
 }

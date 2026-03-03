@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ProHeader from '../../components/ProHeader'
-import { PRO_DEMO_USER_KEY } from '../../data/sampleData'
+import { getProScenario } from '../../data/sampleData'
 
 const TERMS = `
 BOOK OF BUSINESS ACQUISITION AGREEMENT
@@ -27,21 +27,16 @@ The Professional represents that they have the authority to enter into this Agre
 This Agreement is effective upon signing and continues until the transition is complete or as otherwise terminated in accordance with its terms.
 `.trim()
 
-function getIsNewUser(location: ReturnType<typeof useLocation>): boolean {
-  const fromState = location.state as { isNewUser?: boolean } | null
-  if (typeof fromState?.isNewUser === 'boolean') return fromState.isNewUser
-  return sessionStorage.getItem(PRO_DEMO_USER_KEY) !== 'existing'
-}
-
 export default function ProSignAgreement() {
   const navigate = useNavigate()
   const location = useLocation()
-  const isNewUser = getIsNewUser(location)
+  const scenario = (location.state as { proScenario?: string } | null)?.proScenario ?? getProScenario()
+  const isNewUser = scenario === 'new'
   const [agreed, setAgreed] = useState(false)
 
   const handleSign = (e: React.FormEvent) => {
     e.preventDefault()
-    if (agreed) navigate('/pro/business', { state: { isNewUser } })
+    if (agreed) navigate('/pro/business', { state: { proScenario: scenario } })
   }
 
   if (!isNewUser) {
@@ -57,7 +52,7 @@ export default function ProSignAgreement() {
             <p className="text-sm text-green-700 font-medium mb-4">✓ Signed on March 15, 2026</p>
             <Link
               to="/pro/dashboard"
-              state={{ isNewUser: false }}
+              state={{ proScenario: scenario }}
               className="inline-block px-6 py-2.5 border border-intuit-gray-300 text-intuit-gray-700 rounded-md hover:bg-intuit-gray-50"
             >
               Back to dashboard
@@ -104,7 +99,7 @@ export default function ProSignAgreement() {
           <div className="flex gap-4">
             <Link
               to="/pro/dashboard"
-              state={{ isNewUser: true }}
+              state={{ proScenario: scenario }}
               className="px-6 py-2.5 border border-intuit-gray-300 text-intuit-gray-700 rounded-md hover:bg-intuit-gray-50"
             >
               Back

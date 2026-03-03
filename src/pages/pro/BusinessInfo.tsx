@@ -1,18 +1,13 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ProHeader from '../../components/ProHeader'
-import { FIRM, PRO_DEMO_USER_KEY } from '../../data/sampleData'
-
-function getIsNewUser(location: ReturnType<typeof useLocation>): boolean {
-  const fromState = location.state as { isNewUser?: boolean } | null
-  if (typeof fromState?.isNewUser === 'boolean') return fromState.isNewUser
-  return sessionStorage.getItem(PRO_DEMO_USER_KEY) !== 'existing'
-}
+import { FIRM, getProScenario } from '../../data/sampleData'
 
 export default function ProBusinessInfo() {
   const navigate = useNavigate()
   const location = useLocation()
-  const isNewUser = getIsNewUser(location)
+  const scenario = (location.state as { proScenario?: string } | null)?.proScenario ?? getProScenario()
+  const isNewUser = scenario === 'new'
   const [form, setForm] = useState({
     legalName: FIRM.name,
     dba: FIRM.dba,
@@ -25,11 +20,13 @@ export default function ProBusinessInfo() {
     clientCount: String(FIRM.clientCount),
     yearsInBusiness: String(FIRM.yearsInBusiness),
     taxSoftware: FIRM.taxSoftware,
+    retirementTimeline: (FIRM as { retirementTimeline?: string }).retirementTimeline ?? 'immediate',
+    transitionVolume: String((FIRM as { transitionVolume?: number }).transitionVolume ?? 500),
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    navigate('/pro/upload', { state: { isNewUser } })
+    navigate('/pro/upload', { state: { proScenario: scenario } })
   }
 
   const update = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }))
@@ -63,8 +60,16 @@ export default function ProBusinessInfo() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Number of clients</label>
-                <p className="text-intuit-gray-800">100</p>
+                <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Total client count</label>
+                <p className="text-intuit-gray-800">{form.clientCount}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Retirement timeline</label>
+                <p className="text-intuit-gray-800">{form.retirementTimeline === 'immediate' ? 'Immediate' : '1–3 years'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Transition volume</label>
+                <p className="text-intuit-gray-800">{form.transitionVolume}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-intuit-gray-500 mb-1">Years in business</label>
@@ -77,7 +82,7 @@ export default function ProBusinessInfo() {
             </div>
             <Link
               to="/pro/dashboard"
-              state={{ isNewUser: false }}
+              state={{ proScenario: scenario }}
               className="inline-block mt-4 px-6 py-2.5 border border-intuit-gray-300 text-intuit-gray-700 rounded-md hover:bg-intuit-gray-50"
             >
               Back to dashboard
@@ -93,14 +98,16 @@ export default function ProBusinessInfo() {
       <ProHeader />
 
       <main className="max-w-2xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <div className="flex gap-2 text-sm text-intuit-gray-600 mb-2">
-            <span>1. Sign agreement</span>
+        <div className="mb-8">
+          <div className="flex gap-6 sm:gap-10 text-sm text-intuit-gray-600 mb-3">
+            <span className="text-intuit-gray-500">1. Sign agreement</span>
             <span className="font-medium text-intuit-blue">2. About your business</span>
-            <span>3. Transition your clients</span>
+            <span className="text-intuit-gray-500">3. Transition your clients</span>
           </div>
-          <div className="h-1 bg-intuit-gray-200 rounded-full">
-            <div className="h-full w-2/3 bg-intuit-blue rounded-full" />
+          <div className="flex gap-1">
+            <div className="h-1.5 flex-1 rounded-full bg-intuit-blue" />
+            <div className="h-1.5 flex-1 rounded-full bg-intuit-blue" />
+            <div className="h-1.5 flex-1 rounded-full bg-intuit-gray-200" />
           </div>
         </div>
 
@@ -179,12 +186,13 @@ export default function ProBusinessInfo() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-intuit-gray-700 mb-1">Number of clients</label>
+              <label className="block text-sm font-medium text-intuit-gray-700 mb-1">Total client count</label>
               <input
                 type="number"
                 value={form.clientCount}
                 onChange={(e) => update('clientCount', e.target.value)}
                 className="w-full px-3 py-2 border border-intuit-gray-300 rounded-md"
+                placeholder="e.g., 1000"
               />
             </div>
             <div>
@@ -198,6 +206,37 @@ export default function ProBusinessInfo() {
             </div>
           </div>
           <div>
+            <label className="block text-sm font-medium text-intuit-gray-700 mb-2">Retirement timeline</label>
+            <div className="flex gap-6">
+              {[
+                { value: 'immediate', label: 'Immediate' },
+                { value: '1-3_years', label: 'In 1–3 years' },
+              ].map((opt) => (
+                <label key={opt.value} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="retirementTimeline"
+                    value={opt.value}
+                    checked={form.retirementTimeline === opt.value}
+                    onChange={() => update('retirementTimeline', opt.value)}
+                  />
+                  <span className="text-sm">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-intuit-gray-700 mb-1">Transition volume</label>
+            <input
+              type="number"
+              value={form.transitionVolume}
+              onChange={(e) => update('transitionVolume', e.target.value)}
+              className="w-full px-3 py-2 border border-intuit-gray-300 rounded-md"
+              placeholder="e.g., 500"
+            />
+            <p className="text-xs text-intuit-gray-500 mt-1">How many clients do you want to transition to TurboTax Full Service this year?</p>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-intuit-gray-700 mb-1">Tax software used</label>
             <input
               value={form.taxSoftware}
@@ -209,8 +248,13 @@ export default function ProBusinessInfo() {
           <div>
             <label className="block text-sm font-medium text-intuit-gray-700 mb-1">Firm logo (optional)</label>
             <p className="text-sm text-intuit-gray-500 mb-2">Upload your logo for use in client emails. This is the only branding customization.</p>
-            <div className="border-2 border-dashed border-intuit-gray-300 rounded-md p-6 text-center text-intuit-gray-500 text-sm">
-              Drag and drop or click to upload
+            <div className="flex items-center gap-4">
+              <div className="shrink-0">
+                <img src={(FIRM as { logoUrl?: string }).logoUrl} alt="Firm logo" className="h-10 w-auto object-contain" />
+              </div>
+              <div className="border-2 border-dashed border-intuit-gray-300 rounded-md p-4 flex-1 text-center text-intuit-gray-500 text-sm">
+                Demo logo shown. Drag and drop or click to upload your own.
+              </div>
             </div>
           </div>
 

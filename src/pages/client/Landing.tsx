@@ -11,7 +11,6 @@ export default function ClientLanding() {
           </div>
           <div className="flex items-center gap-4">
             <span className="px-3 py-1 bg-intuit-red text-white text-sm font-medium rounded">Full Service</span>
-            <Link to="/" className="text-sm text-intuit-gray-600 hover:text-intuit-blue">View as pro</Link>
           </div>
         </div>
       </header>

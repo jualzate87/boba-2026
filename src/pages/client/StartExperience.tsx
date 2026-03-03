@@ -15,7 +15,6 @@ export default function ClientStartExperience() {
             <span className="text-intuit-gray-400">|</span>
             <span className="text-intuit-gray-600">Full Service</span>
           </div>
-          <Link to="/" className="text-sm text-intuit-gray-600 hover:text-intuit-blue">View as pro</Link>
         </div>
       </header>
 
